@@ -1,0 +1,3 @@
+﻿  task.cpp
+C:\Users\Vasiliy\Desktop\MIPT\4 семестр\прога\2sem\task\task\task.cpp(188,30): warning C4305: инициализация: усечение из "double" в "float"
+  task.vcxproj -> C:\Users\Vasiliy\Desktop\MIPT\4 семестр\прога\2sem\task\Debug\task.exe
