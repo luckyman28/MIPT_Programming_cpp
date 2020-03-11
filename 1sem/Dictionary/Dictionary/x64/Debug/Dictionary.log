@@ -1,0 +1,2 @@
+﻿  Dictionary.cpp
+C:\Users\Vasiliy\Desktop\MIPT\4 семестр\прога\1sem\Dictionary\Dictionary\Dictionary.cpp(51,41): error C2429: для функция языка "структурированные привязки" нужен флаг компилятора "/std:c++17"
