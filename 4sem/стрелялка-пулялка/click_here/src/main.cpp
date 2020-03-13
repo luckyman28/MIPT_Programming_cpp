@@ -1,6 +1,7 @@
 #include <SFML\Graphics.hpp>
 #include <iostream>
 #include "Vector2_class.h"
+#include <cmath>
 
 //создаем структуру, в которую передаем текстуру и координаты - направление движения текстуры
 struct moving_texture {
@@ -8,13 +9,6 @@ struct moving_texture {
 	float x;
 	float y;
 };
-
-//void move(sf::CircleShape &circle) {
-//	circle.move(1, 0);
-//	circle.move(0, 1);
-//	//circle.move(-2, 0);
-//	//circle.move(-2, 0);
-//}
 
 //функция движения текстуры - ссылка для того чтобы изменить объект т.к. он двигается
 void move(sf::Sprite& circle, float x, float y) {
@@ -67,6 +61,37 @@ int main()
 		//закрашиваем окно в белый
 		window.clear(sf::Color::White);
 
+		sf::Vector2u circleSize = hero.getTexture()->getSize(); //создаем вектор, характеризующий размер нашего "героя"
+		hero.setOrigin(circleSize.x / 2, circleSize.y / 2);
+
+		//код, необходимый для того, чтобы герой ориентировался на мышку
+		sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+		sf::Vector2f center = hero.getPosition();
+		sf::Vector2f d = sf::Vector2f(mousePosition.x, mousePosition.y) - center; //вектор, напрвленный от положения героя к курсору
+		const float Pi = 3.14159f;
+		hero.setRotation(-(90 + atan2f(d.x, d.y) * 180 / Pi));
+
+
+		Vector2 direction(d.x, d.y), normed_direction; // перегоняем вектор d в "наш" Vector2
+		normed_direction = direction.norm(); //нормируем полученный вектор
+
+		//при нажатии на правую кнопку мыши стреляем лазером
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+		{
+			//создаем прямоугольник
+			sf::RectangleShape rectangle;// создаем прямоугольник - луч лазера
+			rectangle.setSize(sf::Vector2f(10, 3000)); //задаем его размеры
+			float angle = atan(normed_direction.x / normed_direction.y); //задаем угол поворота чтобы сонаправить лазер направлению нажатия мышки
+			if (normed_direction.y < 0)
+				rectangle.setRotation(180 - (angle * 180 / Pi)); //нужен разбор случаев в силу области значений арктангенса
+			if (normed_direction.y >= 0)
+				rectangle.setRotation(-(angle * 180 / Pi));
+			rectangle.move(sf::Vector2f(hero.getPosition().x , hero.getPosition().y)); //задаем начальную координату прямоугольника - она совпадает с координатой героя-иконки
+			rectangle.setFillColor(sf::Color::Red);
+			window.draw(rectangle);
+
+		}
+
 		//проходим по массиву мячей-пуль, рисуем их и двигаем в том направлении, в котором они должны двигаться
 		for (auto& it : balls_array)
 		{
@@ -76,9 +101,6 @@ int main()
 
 		window.draw(hero); //рисуем нашего "героя"
 		window.display(); // выводим все на экран
-
-		sf::Vector2u circleSize = hero.getTexture()->getSize(); //создаем вектор, характеризующий размер нашего "героя"
-		hero.setOrigin(circleSize.x / 2, circleSize.y / 2);
 
 		//реализуем движение героя с учетом того что он не должен вылетать за границы окна 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
@@ -126,28 +148,10 @@ int main()
 			}
 		}
 
-		//код, необходимый для того, чтобы герой ориентировался на мышку
-		sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-		sf::Vector2f center = hero.getPosition();
-		sf::Vector2f d = sf::Vector2f(mousePosition.x, mousePosition.y) - center; //вектор, напрвленный от положения героя к курсору
-		const float Pi = 3.14159f;
-		hero.setRotation(-(90 + atan2f(d.x, d.y) * 180 / Pi));
-
-
-		Vector2 direction(d.x, d.y), normed_direction; // перегоняем вектор d в "наш" Vector2
-		normed_direction = direction.norm(); //нормируем полученный вектор
 
 		//если мышка нажата, стреляем новым шаром, отдельно обрабатывая случай "лазера" с помощью флага
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 		{
-			//sf::CircleShape ball(20);
-			//ball.setPosition(circle.getPosition().x, circle.getPosition().y);
-			//ball.setFillColor(sf::Color::Black);
-			//ball.setOutlineThickness(5);
-			//ball.setOutlineColor(sf::Color::Blue);
-			//circles[circles_number] = ball;
-			//circles_number++;
-
 			if (flag == 0) // если при данном нажатии мышки мы уже создали мяч-пулю, то больше мы его не создаем до следующего нажатия
 			{
 				balls_array[ball_number].ball.setTexture(texture_); //добавляем в массив мяч-пулю
@@ -164,5 +168,4 @@ int main()
 		}
 	}
 }
-
 
